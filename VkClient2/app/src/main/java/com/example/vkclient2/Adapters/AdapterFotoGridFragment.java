@@ -1,5 +1,6 @@
 package com.example.vkclient2.Adapters;
 
+import android.annotation.SuppressLint;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
@@ -8,10 +9,22 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 
+import com.example.vkclient2.MainActivity;
 import com.example.vkclient2.R;
+import com.example.vkclient2.SupportInterfaces.OnClickHolder;
+
+import java.util.List;
 
 public class AdapterFotoGridFragment extends RecyclerView.Adapter<AdapterFotoGridFragment.FotoHolder> {
     private static final String TAG = "AdapterFotoGridFragment";
+    List<Integer> resInts;
+
+    private OnClickHolder clickHandler;
+    public void setClickHandler(OnClickHolder clickHandler) {this.clickHandler = clickHandler;}
+
+    public AdapterFotoGridFragment(List<Integer>resInts){
+        this.resInts = resInts;
+    }
 
     @NonNull
     @Override
@@ -21,28 +34,29 @@ public class AdapterFotoGridFragment extends RecyclerView.Adapter<AdapterFotoGri
     }
 
     @Override
-    public void onBindViewHolder(@NonNull FotoHolder holder, int position) {
+    public void onBindViewHolder(@NonNull FotoHolder holder, @SuppressLint("RecyclerView") int position) {
+        MainActivity.currentFragmentNumber = position;
         holder.bind(position);
     }
 
     @Override
     public int getItemCount() {
-        return 20;
+        return resInts.size();
     }
 
-    public class FotoHolder extends RecyclerView.ViewHolder{
+    class FotoHolder extends RecyclerView.ViewHolder{
         ImageView cardImage;
-        public FotoHolder(View itemView) {
+        FotoHolder(View itemView) {
             super(itemView);
             cardImage = itemView.findViewById(R.id.cardImage);
         }
         void bind(int position){
-            cardImage.setImageResource(R.drawable.ic_menu_camera);
+            cardImage.setImageResource(resInts.get(position));
             itemView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
                     Log.d(TAG, "onClick FOTOHOLDER");
-
+                    clickHandler.openSlider(v);
                 }
             });
         }
