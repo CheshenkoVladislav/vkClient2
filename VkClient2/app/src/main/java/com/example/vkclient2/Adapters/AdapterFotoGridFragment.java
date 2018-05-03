@@ -2,6 +2,7 @@ package com.example.vkclient2.Adapters;
 
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -10,7 +11,7 @@ import android.widget.ImageView;
 import com.example.vkclient2.R;
 
 public class AdapterFotoGridFragment extends RecyclerView.Adapter<AdapterFotoGridFragment.FotoHolder> {
-
+    private static final String TAG = "AdapterFotoGridFragment";
 
     @NonNull
     @Override
@@ -37,6 +38,13 @@ public class AdapterFotoGridFragment extends RecyclerView.Adapter<AdapterFotoGri
         }
         void bind(int position){
             cardImage.setImageResource(R.drawable.ic_menu_camera);
+            itemView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    Log.d(TAG, "onClick FOTOHOLDER");
+
+                }
+            });
         }
     }
 }

@@ -48,11 +48,18 @@ public class AdapterFriendList extends BaseAdapter {
         return position;
     }
 
+    @Override
+    public boolean isEnabled(int position) {
+        if (position == 0)return false;
+        else return true;
+    }
+
     @SuppressLint("ViewHolder")
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
         if (getItemViewType(position) == 0) {
             convertView = LayoutInflater.from(context).inflate(R.layout.list_header, parent, false);
+            convertView.isEnabled();
         } else {
             convertView = LayoutInflater.from(context).inflate(R.layout.listview_item, parent, false);
             TextView text = convertView.findViewById(R.id.textItem);
