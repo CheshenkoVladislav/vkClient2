@@ -50,13 +50,13 @@ public class AdapterFotoGridFragment extends RecyclerView.Adapter<AdapterFotoGri
             super(itemView);
             cardImage = itemView.findViewById(R.id.cardImage);
         }
-        void bind(int position){
+        void bind(final int position){
             cardImage.setImageResource(resInts.get(position));
             itemView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    Log.d(TAG, "onClick FOTOHOLDER");
-                    clickHandler.openSlider(v);
+                    Log.d(TAG, "onClick FOTOHOLDER , position: " + position);
+                    clickHandler.openSlider(position);
                 }
             });
         }
