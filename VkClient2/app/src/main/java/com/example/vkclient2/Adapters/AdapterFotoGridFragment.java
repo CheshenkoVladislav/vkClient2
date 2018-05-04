@@ -35,7 +35,6 @@ public class AdapterFotoGridFragment extends RecyclerView.Adapter<AdapterFotoGri
 
     @Override
     public void onBindViewHolder(@NonNull FotoHolder holder, @SuppressLint("RecyclerView") int position) {
-        MainActivity.currentFragmentNumber = position;
         holder.bind(position);
     }
 
@@ -55,8 +54,8 @@ public class AdapterFotoGridFragment extends RecyclerView.Adapter<AdapterFotoGri
             itemView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    Log.d(TAG, "onClick FOTOHOLDER , position: " + position);
-                    clickHandler.openSlider(position);
+                    MainActivity.currentFragmentNumber = position;
+                    clickHandler.openSlider(position,v);
                 }
             });
         }

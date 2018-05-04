@@ -5,5 +5,5 @@ import android.view.View;
 import java.util.List;
 
 public interface OnClickHolder {
-    void openSlider(int position);
+    void openSlider(int position,View view);
 }

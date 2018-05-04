@@ -7,6 +7,7 @@ import android.transition.TransitionSet;
 
 public class CustomTransition extends TransitionSet {
     public CustomTransition(){
+        setOrdering(ORDERING_TOGETHER);
         addTransition(new ChangeTransform())
                 .addTransition(new ChangeImageTransform())
                 .addTransition(new ChangeBounds());
