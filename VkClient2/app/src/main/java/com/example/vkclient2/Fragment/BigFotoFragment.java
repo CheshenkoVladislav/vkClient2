@@ -33,17 +33,12 @@ public class BigFotoFragment extends Fragment {
         ImageView imageView = view.findViewById(R.id.bigPhotoContainer);
         imageView.setTransitionName(String.valueOf(imageUrl));
         imageView.setImageResource(imageUrl);
-//        prepareEnterTransition(imageView);
+        getParentFragment().startPostponedEnterTransition();
         Log.d(TAG, "TRANSITION NAME: " + imageView.getTransitionName());
         return view;
     }
 
-    private void prepareEnterTransition(ImageView imageView) {
-        imageView.setTransitionName(String.valueOf(imageUrl));
-        imageView.setImageResource(imageUrl);
-        Transition transition = TransitionInflater.from(getContext()).inflateTransition(R.transition.shared_transition);
-        setSharedElementEnterTransition(transition);
+
 //        setEnterTransition(transition);
 //        setSharedElementReturnTransition(new Fade());
-    }
 }

@@ -15,7 +15,7 @@ import com.example.vkclient2.SupportInterfaces.OnClickHolder;
 
 import java.util.List;
 
-public class AdapterFotoGridFragment extends RecyclerView.Adapter<AdapterFotoGridFragment.FotoHolder> {
+public class    AdapterFotoGridFragment extends RecyclerView.Adapter<AdapterFotoGridFragment.FotoHolder> {
     private static final String TAG = "AdapterFotoGridFragment";
     List<Integer> resInts;
 

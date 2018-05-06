@@ -46,6 +46,7 @@ public class FotoGridFragment extends Fragment {
         adapter.setClickHandler(new ConnectToSlider());
         recyclerView.setAdapter(adapter);
 //        prepareExitTransition();
+//        postponeEnterTransition();
         return recyclerView;
     }
 
@@ -82,7 +83,6 @@ public class FotoGridFragment extends Fragment {
                         .addToBackStack(null)
                         .addSharedElement(imageView,imageView.getTransitionName())
                         .replace(R.id.fragmentContainer, slider);
-                slider.setEnterTransition(TransitionInflater.from(getContext()).inflateTransition(R.transition.shared_transition));
                 fragmentTransaction.commit();
             }
 //            ft.commit();

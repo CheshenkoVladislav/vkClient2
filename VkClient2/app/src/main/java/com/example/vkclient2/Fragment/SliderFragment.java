@@ -11,6 +11,7 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.app.FragmentStatePagerAdapter;
 import android.support.v4.view.ViewPager;
+import android.transition.ChangeBounds;
 import android.transition.Fade;
 import android.transition.Transition;
 import android.transition.TransitionInflater;
@@ -38,15 +39,17 @@ public class SliderFragment extends Fragment {
         pager.setAdapter(adapter);
         pager.setCurrentItem(MainActivity.currentFragmentNumber);
         prepareTransition();
+//        postponeEnterTransition();
         if (savedInstanceState == null) {
-            postponeEnterTransition();
+            Log.d(TAG, "INSTANSE STATE NULL, START POSTPONE ENTER TRANSITION");
+//            postponeEnterTransition();
         }
         return pager;
     }
     void prepareTransition(){
         Transition transition = TransitionInflater.from(getContext())
                 .inflateTransition(R.transition.shared_transition);
-        setSharedElementEnterTransition(new Fade());
+        setSharedElementEnterTransition(new ChangeBounds());
 //        setEnterTransition(transition);
     }
 }
