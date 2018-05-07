@@ -8,6 +8,7 @@ import android.support.v4.app.FragmentTransaction;
 import android.support.v7.view.menu.MenuView;
 import android.support.v7.widget.RecyclerView;
 import android.transition.Fade;
+import android.transition.TransitionSet;
 import android.widget.ImageView;
 import android.transition.Transition;
 import android.transition.TransitionInflater;
@@ -46,6 +47,9 @@ public class FotoGridFragment extends Fragment {
         adapter.setClickHandler(new ConnectToSlider());
         recyclerView.setAdapter(adapter);
 //        prepareExitTransition();
+        /**
+         * Postpone transition needed for wait for create new Fragment
+         */
 //        postponeEnterTransition();
         return recyclerView;
     }
@@ -56,6 +60,9 @@ public class FotoGridFragment extends Fragment {
         setExitTransition(transition);
     }
 
+    /**
+     * Initialisation local data
+     */
     public List<Integer> initData(){
         List<Integer>resInts = new ArrayList<>();
         resInts.add(R.drawable.ic_menu_gallery);
@@ -67,6 +74,11 @@ public class FotoGridFragment extends Fragment {
         return resInts;
     }
 
+    /**
+    *Realisation click handler. This include this fragment with exclude on click view.*
+     * Also this handler include setting transitionSet on next Fragment (Slider Fragment)
+     * Click on View - begin transaction to next fragment (Slider Fragment)
+     */
     class ConnectToSlider implements OnClickHolder{
         @Override
         public void openSlider(int position,View v) {
@@ -74,18 +86,22 @@ public class FotoGridFragment extends Fragment {
             ImageView imageView = v.findViewById(R.id.cardImage);
             imageView.setTransitionName(String.valueOf(Images.resInts.get(position)));
             SliderFragment slider = new SliderFragment();
+//            ((TransitionSet) MainActivity.getCurrentFragment().getExitTransition()).excludeTarget(v, true);
             if (getFragmentManager() != null) {
                 Log.d(TAG, "TRANSITION NAME: " + v.getTransitionName());
                 Log.d(TAG, "VIEW: " + v);
+                Transition transition = TransitionInflater.from(getContext())
+                        .inflateTransition(R.transition.shared_transition);
+                slider.setSharedElementEnterTransition(transition);
+                slider.setSharedElementReturnTransition(transition);
                 FragmentTransaction fragmentTransaction = getFragmentManager()
                         .beginTransaction()
-//                        .setReorderingAllowed(true)
+                        .setReorderingAllowed(true)
                         .addToBackStack(null)
                         .addSharedElement(imageView,imageView.getTransitionName())
                         .replace(R.id.fragmentContainer, slider);
                 fragmentTransaction.commit();
             }
-//            ft.commit();
         }
     }
 }

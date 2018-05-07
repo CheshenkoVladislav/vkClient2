@@ -42,14 +42,14 @@ public class SliderFragment extends Fragment {
 //        postponeEnterTransition();
         if (savedInstanceState == null) {
             Log.d(TAG, "INSTANSE STATE NULL, START POSTPONE ENTER TRANSITION");
-//            postponeEnterTransition();
+            postponeEnterTransition();
         }
         return pager;
     }
     void prepareTransition(){
         Transition transition = TransitionInflater.from(getContext())
                 .inflateTransition(R.transition.shared_transition);
-        setSharedElementEnterTransition(new ChangeBounds());
+        setSharedElementEnterTransition(transition);
 //        setEnterTransition(transition);
     }
 }

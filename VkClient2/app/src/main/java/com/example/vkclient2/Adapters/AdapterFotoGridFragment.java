@@ -3,6 +3,7 @@ package com.example.vkclient2.Adapters;
 import android.annotation.SuppressLint;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
+import android.transition.TransitionSet;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -15,7 +16,7 @@ import com.example.vkclient2.SupportInterfaces.OnClickHolder;
 
 import java.util.List;
 
-public class    AdapterFotoGridFragment extends RecyclerView.Adapter<AdapterFotoGridFragment.FotoHolder> {
+public class AdapterFotoGridFragment extends RecyclerView.Adapter<AdapterFotoGridFragment.FotoHolder> {
     private static final String TAG = "AdapterFotoGridFragment";
     List<Integer> resInts;
 
@@ -51,6 +52,7 @@ public class    AdapterFotoGridFragment extends RecyclerView.Adapter<AdapterFoto
         }
         void bind(final int position){
             cardImage.setImageResource(resInts.get(position));
+            MainActivity.getCurrentFragment().startPostponedEnterTransition();
             itemView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {

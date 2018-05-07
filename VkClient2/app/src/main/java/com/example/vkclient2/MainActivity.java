@@ -23,6 +23,10 @@ import com.example.vkclient2.Fragment.FotoGridFragment;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * !!!TODO: SORRY FOR MY ENGLISH!!!
+ */
+
 public class MainActivity extends AppCompatActivity {
     private static final String TAG = "MainActivity";
     public static TextView textView;
@@ -43,11 +47,14 @@ public class MainActivity extends AppCompatActivity {
         AdapterFriendList adapterFriendList = new AdapterFriendList(this,initFriends());
         friendList.setAdapter(adapterFriendList);
 
+        //Transaction on start Fragment
         FotoGridFragment startFragment = new FotoGridFragment();
         currentFragment = startFragment;
         getSupportFragmentManager().beginTransaction()
                 .add(R.id.fragmentContainer,startFragment)
                 .commit();
+
+        //FAB Handler
         FloatingActionButton fab = findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -56,6 +63,7 @@ public class MainActivity extends AppCompatActivity {
                         .setAction("Action", null).show();
             }
         });
+
 
         DrawerLayout drawer = findViewById(R.id.drawer_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
@@ -72,6 +80,9 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
+    /**
+     * Init local friendList
+     */
     private List<Friend> initFriends() {
         List<Friend>friendList = new ArrayList<>();
         friendList.add(new Friend("Vasya"));
@@ -120,7 +131,7 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     public void onBackPressed() {
-        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+        DrawerLayout drawer = findViewById(R.id.drawer_layout);
         if (drawer.isDrawerOpen(GravityCompat.START)) {
             drawer.closeDrawer(GravityCompat.START);
         } else {
