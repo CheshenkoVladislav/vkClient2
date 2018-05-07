@@ -39,7 +39,6 @@ public class SliderFragment extends Fragment {
         pager.setAdapter(adapter);
         pager.setCurrentItem(MainActivity.currentFragmentNumber);
         prepareTransition();
-//        postponeEnterTransition();
         if (savedInstanceState == null) {
             Log.d(TAG, "INSTANSE STATE NULL, START POSTPONE ENTER TRANSITION");
             postponeEnterTransition();

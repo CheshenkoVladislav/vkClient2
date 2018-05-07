@@ -4,6 +4,6 @@
     android:interpolator="@android:interpolator/fast_out_slow_in"
     android:startDelay="25">
     <fade>
-        <targets android:targetId="@id/cardView"/>
+        <targets android:targetId="@id/cardImage"/>
     </fade>
 </transitionSet>

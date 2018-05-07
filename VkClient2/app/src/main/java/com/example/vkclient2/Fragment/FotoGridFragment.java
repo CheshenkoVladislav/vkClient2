@@ -43,14 +43,14 @@ public class FotoGridFragment extends Fragment {
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         RecyclerView recyclerView = (RecyclerView) inflater.inflate(R.layout.fragment_foto_grid,container,false);
         Images.resInts = initData();
-        adapter = new AdapterFotoGridFragment(Images.resInts);
+        adapter = new AdapterFotoGridFragment(Images.resInts,this);
         adapter.setClickHandler(new ConnectToSlider());
         recyclerView.setAdapter(adapter);
-//        prepareExitTransition();
+        prepareExitTransition();
         /**
          * Postpone transition needed for wait for create new Fragment
          */
-//        postponeEnterTransition();
+        postponeEnterTransition();
         return recyclerView;
     }
 
@@ -84,24 +84,18 @@ public class FotoGridFragment extends Fragment {
         public void openSlider(int position,View v) {
             Log.d(TAG, "openSlider: GO FRAGMENT");
             ImageView imageView = v.findViewById(R.id.cardImage);
-            imageView.setTransitionName(String.valueOf(Images.resInts.get(position)));
+//            imageView.setTransitionName(String.valueOf(Images.resInts.get(position)));
             SliderFragment slider = new SliderFragment();
-//            ((TransitionSet) MainActivity.getCurrentFragment().getExitTransition()).excludeTarget(v, true);
-            if (getFragmentManager() != null) {
+            ((TransitionSet) MainActivity.getCurrentFragment().getExitTransition()).excludeTarget(v, true);
                 Log.d(TAG, "TRANSITION NAME: " + v.getTransitionName());
                 Log.d(TAG, "VIEW: " + v);
-                Transition transition = TransitionInflater.from(getContext())
-                        .inflateTransition(R.transition.shared_transition);
-                slider.setSharedElementEnterTransition(transition);
-                slider.setSharedElementReturnTransition(transition);
-                FragmentTransaction fragmentTransaction = getFragmentManager()
+                getActivity().getSupportFragmentManager()
                         .beginTransaction()
                         .setReorderingAllowed(true)
                         .addToBackStack(null)
                         .addSharedElement(imageView,imageView.getTransitionName())
-                        .replace(R.id.fragmentContainer, slider);
-                fragmentTransaction.commit();
+                        .replace(R.id.fragmentContainer, slider)
+                        .commit();
             }
-        }
     }
 }

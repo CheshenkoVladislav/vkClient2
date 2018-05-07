@@ -37,4 +37,5 @@ public class BigFotoFragment extends Fragment {
         Log.d(TAG, "TRANSITION NAME: " + imageView.getTransitionName());
         return view;
     }
+
 }
