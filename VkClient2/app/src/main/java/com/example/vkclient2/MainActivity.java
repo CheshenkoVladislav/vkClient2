@@ -50,16 +50,6 @@ public class MainActivity extends AppCompatActivity {
         textView = findViewById(R.id.categoryTextView);
         friendList = findViewById(R.id.friend_list);
 
-        AdapterFriendList adapterFriendList = new AdapterFriendList(this,initFriends());
-        friendList.setAdapter(adapterFriendList);
-
-        //Transaction on start Fragment
-        FotoGridFragment startFragment = new FotoGridFragment();
-        currentFragment = startFragment;
-        getSupportFragmentManager().beginTransaction()
-                .replace(R.id.fragmentContainer,startFragment)
-                .commit();
-
         //FAB Handler
         FloatingActionButton fab = findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
@@ -69,7 +59,6 @@ public class MainActivity extends AppCompatActivity {
                         .setAction("Action", null).show();
             }
         });
-
 
         DrawerLayout drawer = findViewById(R.id.drawer_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
@@ -85,7 +74,29 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
+    @Override
+    protected void onResume() {
+        super.onResume();
+        if (!VKSdk.isLoggedIn()){
+            loggIn();}
+            else initStartFragment();
+    }
+    private void loggIn() {
+        Intent intent = new Intent(this, SignInActivity.class);
+        startActivity(intent);
+    }
+
     private void initStartFragment() {
+        //init friendList
+        AdapterFriendList adapterFriendList = new AdapterFriendList(this,initFriends());
+        friendList.setAdapter(adapterFriendList);
+
+        //Transaction on start Fragment
+        FotoGridFragment startFragment = new FotoGridFragment();
+        currentFragment = startFragment;
+        getSupportFragmentManager().beginTransaction()
+                .replace(R.id.fragmentContainer,startFragment)
+                .commit();
     }
 
 
