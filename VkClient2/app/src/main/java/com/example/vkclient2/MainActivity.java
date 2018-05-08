@@ -1,5 +1,6 @@
 package com.example.vkclient2;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
@@ -22,6 +23,7 @@ import android.widget.TextView;
 import com.example.vkclient2.Adapters.AdapterFriendList;
 import com.example.vkclient2.Data.Friend;
 import com.example.vkclient2.Fragment.FotoGridFragment;
+import com.vk.sdk.VKSdk;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -47,6 +49,7 @@ public class MainActivity extends AppCompatActivity {
         setSupportActionBar(toolbar);
         textView = findViewById(R.id.categoryTextView);
         friendList = findViewById(R.id.friend_list);
+
         AdapterFriendList adapterFriendList = new AdapterFriendList(this,initFriends());
         friendList.setAdapter(adapterFriendList);
 
@@ -80,8 +83,11 @@ public class MainActivity extends AppCompatActivity {
                 showPopupMenu(v);
             }
         });
-
     }
+
+    private void initStartFragment() {
+    }
+
 
     /**
      * Init local friendList
