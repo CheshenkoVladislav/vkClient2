@@ -12,24 +12,25 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 
+import com.example.vkclient2.Data.PhotoClass;
+import com.example.vkclient2.Data.PhotoListClass;
 import com.example.vkclient2.Data.Photos.Items;
 import com.example.vkclient2.Fragment.FotoGridFragment;
 import com.example.vkclient2.MainActivity;
 import com.example.vkclient2.R;
 import com.example.vkclient2.SupportInterfaces.OnClickHolder;
+import com.squareup.picasso.Picasso;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class AdapterFotoGridFragment extends RecyclerView.Adapter<AdapterFotoGridFragment.FotoHolder> {
     private static final String TAG = "AdapterFotoGridFragment";
-    private List<Integer> resInts;
-    private List<Items>itemList;
     private OnClickHolder clickHandler;
     private Fragment fragment;
     public void setClickHandler(OnClickHolder clickHandler) {this.clickHandler = clickHandler;}
 
     public AdapterFotoGridFragment(List<Integer> resInts,Fragment fragment){
-        this.resInts = resInts;
         this.fragment = fragment;
     }
 
@@ -47,13 +48,25 @@ public class AdapterFotoGridFragment extends RecyclerView.Adapter<AdapterFotoGri
 
     @Override
     public int getItemCount() {
-        return resInts.size();
+        return PhotoListClass.getPhotoList().size();
     }
 
     //Adapter public methods
-    public void setItems(List<Items>itemList){
-//        Log.d(TAG, "ITEMS LIST: " + itemList.size());
-        this.itemList = itemList;
+    public void setPhotos(List<Items> itemList){
+        for (int i = 0; i < itemList.size(); i++) {
+            PhotoClass photo = new PhotoClass();
+            photo.setSmallPhoto(itemList.get(i).getPhoto_604());
+            if (itemList.get(i).getPhoto_2560() != null)
+                photo.setBigPhoto(itemList.get(i).getPhoto_2560());
+            else if (itemList.get(i).getPhoto_1280() != null)
+                photo.setBigPhoto(itemList.get(i).getPhoto_1280());
+            else if (itemList.get(i).getPhoto_807() != null)
+                photo.setBigPhoto(itemList.get(i).getPhoto_807());
+            else photo.setBigPhoto(itemList.get(i).getPhoto_604());
+            PhotoListClass.getPhotoList().add(photo);
+        }
+        notifyDataSetChanged();
+        Log.d(TAG, "SMALL PHOTOS: " + PhotoListClass.getPhotoList().size());
     }
 
     /**********************HOLDER***********************************/
@@ -68,14 +81,13 @@ public class AdapterFotoGridFragment extends RecyclerView.Adapter<AdapterFotoGri
         }
         void bind(int position){
             this.position = position;
-            setImage();
-            cardImage.setTransitionName(String.valueOf(resInts.get(position)));
-        }
-        private void setImage(){
-            cardImage.setImageResource(resInts.get(position));
+            Picasso.get()
+                    .load(PhotoListClass.getPhotoList().get(position).getSmallPhoto())
+                    .into(cardImage);
+            cardImage.setTransitionName(String.valueOf(PhotoListClass.getPhotoList()
+                    .get(position).getSmallPhoto()));
             fragment.startPostponedEnterTransition();
         }
-
         @Override
         public void onClick(View v) {
             Log.d(TAG, "onClick: ");

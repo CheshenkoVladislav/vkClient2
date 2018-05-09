@@ -17,12 +17,12 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 
 import com.example.vkclient2.R;
+import com.squareup.picasso.Callback;
 import com.squareup.picasso.Picasso;
 
 public class BigFotoFragment extends Fragment {
-    private int imageUrl;
-    public int getImageUrl() {return imageUrl;}
-    public void setImageUrl(int imageUrl) {this.imageUrl = imageUrl;}
+    private String imageUrl;
+    private String transitionName;
     private static final String TAG = "BigFotoFragment";
 
     @Nullable
@@ -31,10 +31,29 @@ public class BigFotoFragment extends Fragment {
         Log.d(TAG, "onCreateView: ");
         View view = inflater.inflate(R.layout.fragment_big_foto,container,false);
         ImageView imageView = view.findViewById(R.id.bigPhotoContainer);
-        imageView.setTransitionName(String.valueOf(imageUrl));
-        imageView.setImageResource(imageUrl);
-        getParentFragment().startPostponedEnterTransition();
+        imageView.setTransitionName(String.valueOf(transitionName));
+        Picasso.get()
+                .load(imageUrl)
+                .into(imageView, new Callback() {
+                    @Override
+                    public void onSuccess() {
+                        Log.d(TAG, "onSuccess: ");
+                        getParentFragment().startPostponedEnterTransition();
+                    }
+
+                    @Override
+                    public void onError(Exception e) {
+                        getParentFragment().startPostponedEnterTransition();
+                    }
+                });
 //        Log.d(TAG, "TRANSITION NAME: " + imageView.getTransitionName());
         return view;
+    }
+
+    public static BigFotoFragment newInstance(String imageUrl, String transitionName){
+        BigFotoFragment fragment = new BigFotoFragment();
+        fragment.imageUrl = imageUrl;
+        fragment.transitionName = transitionName;
+        return fragment;
     }
 }

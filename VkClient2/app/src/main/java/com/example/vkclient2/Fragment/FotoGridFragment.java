@@ -4,42 +4,33 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentTransaction;
-import android.support.v7.view.menu.MenuView;
+import android.support.v4.app.SharedElementCallback;
 import android.support.v7.widget.RecyclerView;
-import android.transition.Fade;
-import android.transition.TransitionSet;
 import android.widget.ImageView;
-import android.transition.Transition;
 import android.transition.TransitionInflater;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageView;
 
 import com.example.vkclient2.Adapters.AdapterFotoGridFragment;
 import com.example.vkclient2.App;
 import com.example.vkclient2.BuildConfig;
-import com.example.vkclient2.CustomTransition;
 import com.example.vkclient2.Data.Images;
+import com.example.vkclient2.Data.PhotoListClass;
 import com.example.vkclient2.Data.Photos.Root;
 import com.example.vkclient2.MainActivity;
 import com.example.vkclient2.R;
 import com.example.vkclient2.SupportInterfaces.OnClickHolder;
 import com.vk.sdk.VKAccessToken;
-import com.vk.sdk.VKSdk;
-import com.vk.sdk.api.VKApi;
-import com.vk.sdk.api.VKParameters;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
-
-import static android.content.ContentValues.TAG;
 
 public class FotoGridFragment extends Fragment {
     RecyclerView recyclerView;
@@ -56,8 +47,7 @@ public class FotoGridFragment extends Fragment {
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         recyclerView = (RecyclerView) inflater.inflate(R.layout.fragment_foto_grid,container,false);
-        Images.resInts = initData();
-//        requestData();
+        requestData();
         adapter = new AdapterFotoGridFragment(Images.resInts,this);
         adapter.setClickHandler(new ConnectToSlider());
         recyclerView.setAdapter(adapter);
@@ -72,6 +62,23 @@ public class FotoGridFragment extends Fragment {
     private void prepareExitTransition() {
         setExitTransition(TransitionInflater.from(getContext())
                 .inflateTransition(R.transition.exit_transition));
+
+        setExitSharedElementCallback(
+        new SharedElementCallback() {
+          @Override
+          public void onMapSharedElements(List<String> names, Map<String, View> sharedElements) {
+            // Locate the ViewHolder for the clicked position.
+            RecyclerView.ViewHolder selectedViewHolder = recyclerView
+                .findViewHolderForAdapterPosition(MainActivity.currentFragmentNumber);
+            if (selectedViewHolder == null || selectedViewHolder.itemView == null) {
+              return;
+            }
+
+            // Map the first shared element name to the child ImageView.
+            sharedElements
+                .put(names.get(0), selectedViewHolder.itemView.findViewById(R.id.cardImage));
+          }
+        });
     }
 
     /**
@@ -92,19 +99,21 @@ public class FotoGridFragment extends Fragment {
      * Download data from server
      */
     public void requestData(){
-        App.getApi().getAllPhotos(Integer.parseInt(VKAccessToken.currentToken().userId),1,0,VKAccessToken.currentToken().accessToken, BuildConfig.VERSION)
-                .enqueue(new Callback<Root>() {
-                    @Override
-                    public void onResponse(Call<Root> call, Response<Root> response) {
-                        adapter.setItems(response.body().getResponse().getItems());
+        if (PhotoListClass.getPhotoList().size() == 0) {
+            App.getApi().getAllPhotos(Integer.parseInt(VKAccessToken.currentToken().userId), 1, 0, VKAccessToken.currentToken().accessToken, BuildConfig.VERSION)
+                    .enqueue(new Callback<Root>() {
+                        @Override
+                        public void onResponse(Call<Root> call, Response<Root> response) {
+                            adapter.setPhotos(response.body().getResponse().getItems());
 
-                    }
+                        }
 
-                    @Override
-                    public void onFailure(Call<Root> call, Throwable t) {
+                        @Override
+                        public void onFailure(Call<Root> call, Throwable t) {
 
-                    }
-                });
+                        }
+                    });
+        }
     }
 
     /**
@@ -117,12 +126,11 @@ public class FotoGridFragment extends Fragment {
         public void openSlider(int position,View v) {
             Log.d(TAG, "openSlider: GO FRAGMENT");
             ImageView imageView = v.findViewById(R.id.cardImage);
+            Log.d(TAG, "imageViewTrans: " + imageView.getTransitionName());
 //            imageView.setTransitionName(String.valueOf(Images.resInts.get(position)));
             SliderFragment slider = new SliderFragment();
 //            ((TransitionSet) MainActivity.getCurrentFragment().getExitTransition()).excludeTarget(v, true);
-//                Log.d(TAG, "TRANSITION NAME: " + v.getTransitionName());
-//                Log.d(TAG, "VIEW: " + v);
-                getFragmentManager()
+            getFragmentManager()
                         .beginTransaction()
                         .setReorderingAllowed(true)
                         .addToBackStack(null)
