@@ -12,6 +12,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 
+import com.example.vkclient2.Data.Photos.Items;
 import com.example.vkclient2.Fragment.FotoGridFragment;
 import com.example.vkclient2.MainActivity;
 import com.example.vkclient2.R;
@@ -21,12 +22,13 @@ import java.util.List;
 
 public class AdapterFotoGridFragment extends RecyclerView.Adapter<AdapterFotoGridFragment.FotoHolder> {
     private static final String TAG = "AdapterFotoGridFragment";
-    List<Integer> resInts;
-    Fragment fragment;
+    private List<Integer> resInts;
+    private List<Items>itemList;
     private OnClickHolder clickHandler;
+    private Fragment fragment;
     public void setClickHandler(OnClickHolder clickHandler) {this.clickHandler = clickHandler;}
 
-    public AdapterFotoGridFragment(List<Integer> resInts, Fragment fragment){
+    public AdapterFotoGridFragment(List<Integer> resInts,Fragment fragment){
         this.resInts = resInts;
         this.fragment = fragment;
     }
@@ -41,13 +43,20 @@ public class AdapterFotoGridFragment extends RecyclerView.Adapter<AdapterFotoGri
     @Override
     public void onBindViewHolder(@NonNull FotoHolder holder, @SuppressLint("RecyclerView") int position) {
         holder.bind(position);
-        fragment.startPostponedEnterTransition();
     }
 
     @Override
     public int getItemCount() {
         return resInts.size();
     }
+
+    //Adapter public methods
+    public void setItems(List<Items>itemList){
+//        Log.d(TAG, "ITEMS LIST: " + itemList.size());
+        this.itemList = itemList;
+    }
+
+    /**********************HOLDER***********************************/
 
     class FotoHolder extends RecyclerView.ViewHolder implements View.OnClickListener{
         ImageView cardImage;
@@ -57,18 +66,21 @@ public class AdapterFotoGridFragment extends RecyclerView.Adapter<AdapterFotoGri
             cardImage = itemView.findViewById(R.id.cardImage);
             itemView.setOnClickListener(this);
         }
-        void bind(final int position){
+        void bind(int position){
             this.position = position;
-            cardImage.setImageResource(resInts.get(position));
+            setImage();
             cardImage.setTransitionName(String.valueOf(resInts.get(position)));
+        }
+        private void setImage(){
+            cardImage.setImageResource(resInts.get(position));
             fragment.startPostponedEnterTransition();
         }
 
         @Override
         public void onClick(View v) {
             Log.d(TAG, "onClick: ");
-            MainActivity.currentFragmentNumber = position;
-            clickHandler.openSlider(position,v);
+            MainActivity.currentFragmentNumber = getAdapterPosition();
+            clickHandler.openSlider(getAdapterPosition(),v);
         }
     }
 }

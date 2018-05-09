@@ -23,8 +23,6 @@ public class AdapterSliderPager extends FragmentStatePagerAdapter{
     @Override
     public Fragment getItem(int position) {
         BigFotoFragment fragment = new BigFotoFragment();
-        Log.d(TAG, "getItem : " + position);
-        Log.d(TAG, "getItem SIZE: " + resInts.size());
         fragment.setImageUrl(resInts.get(position));
         return fragment;
     }

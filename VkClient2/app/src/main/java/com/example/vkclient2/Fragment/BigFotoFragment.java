@@ -34,8 +34,7 @@ public class BigFotoFragment extends Fragment {
         imageView.setTransitionName(String.valueOf(imageUrl));
         imageView.setImageResource(imageUrl);
         getParentFragment().startPostponedEnterTransition();
-        Log.d(TAG, "TRANSITION NAME: " + imageView.getTransitionName());
+//        Log.d(TAG, "TRANSITION NAME: " + imageView.getTransitionName());
         return view;
     }
-
 }

@@ -19,7 +19,8 @@
         android:layout_width="200dp"
         android:layout_height="match_parent"
         android:layout_gravity="start"
-        tools:listitem="@layout/listview_item">
+        tools:listitem="@layout/listview_item"
+        android:focusable="true">
     </ListView>
 
 </android.support.v4.widget.DrawerLayout>
