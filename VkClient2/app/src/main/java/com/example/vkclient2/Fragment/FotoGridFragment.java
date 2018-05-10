@@ -45,9 +45,8 @@ public class FotoGridFragment extends Fragment {
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        String categoryName = "Photo";
-        ((MainActivity)getActivity()).categoryTextView.setText(categoryName);
-        ((MainActivity)getActivity()).friendNameTextView.setText(userName);
+        Log.d(TAG, "onCreate: ");
+        Log.d(TAG, "userName: " + userName);
     }
     @Nullable
     @Override
@@ -62,8 +61,13 @@ public class FotoGridFragment extends Fragment {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+        Log.d(TAG, "!!!START NEW FRAGMENT!!!");
+        String categoryName = "Photo";
+        ((MainActivity)getActivity()).categoryTextView.setText(categoryName);
+        ((MainActivity)getActivity()).friendNameTextView.setText(userName);
         recyclerView = view.findViewById(R.id.recycler);
-        requestData();
+        if (PhotoListClass.getPhotoList().size() == 0)
+            requestData();
         adapter = new AdapterFotoGridFragment(this);
         adapter.setClickHandler(new ConnectToSlider());
         recyclerView.setAdapter(adapter);
@@ -73,6 +77,8 @@ public class FotoGridFragment extends Fragment {
         refresh.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
+                if (PhotoListClass.getPhotoList().size() != 0)
+                    PhotoListClass.clearPhotoList();
                 requestData();
             }
         });
@@ -103,10 +109,7 @@ public class FotoGridFragment extends Fragment {
      * Download data from server
      */
     public void requestData(){
-        if (PhotoListClass.getPhotoList().size() != 0) {
-            PhotoListClass.clearPhotoList();
-        }
-            App.getApi().getAllPhotos(Integer.parseInt(VKAccessToken.currentToken().userId), 1, 0,
+            App.getApi().getAllPhotos(userId, 1, 0,
                     VKAccessToken.currentToken().accessToken, BuildConfig.VERSION)
                     .enqueue(new Callback<Root>() {
                         @Override
@@ -132,9 +135,7 @@ public class FotoGridFragment extends Fragment {
     class ConnectToSlider implements SupportInterface {
         @Override
         public void openSlider(int position,View v) {
-            Log.d(TAG, "openSlider: GO FRAGMENT");
             ImageView imageView = v.findViewById(R.id.cardImage);
-            Log.d(TAG, "imageViewTrans: " + imageView.getTransitionName());
 //            imageView.setTransitionName(String.valueOf(Images.resInts.get(position)));
             SliderFragment slider = new SliderFragment();
 //            ((TransitionSet) MainActivity.getCurrentFragment().getExitTransition()).excludeTarget(v, true);
@@ -149,13 +150,14 @@ public class FotoGridFragment extends Fragment {
 
         @Override
         public void loadMorePhotos() {
-                App.getApi().getAllPhotos(Integer.parseInt(VKAccessToken.currentToken().userId),1,
+                App.getApi().getAllPhotos(userId,1,
                         PhotoListClass.getPhotoList().size(),
                         VKAccessToken.currentToken().accessToken,
                         BuildConfig.VERSION).enqueue(new Callback<Root>() {
                     @Override
                     public void onResponse(Call<Root> call, Response<Root> response) {
-                        adapter.setPhotos(response.body().getResponse().getItems());
+                        if (response.body().getResponse() != null)
+                            adapter.setPhotos(response.body().getResponse().getItems());
                     }
 
                     @Override

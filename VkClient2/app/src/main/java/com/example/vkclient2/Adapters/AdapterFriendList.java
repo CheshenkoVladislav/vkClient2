@@ -3,6 +3,7 @@ package com.example.vkclient2.Adapters;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.support.annotation.NonNull;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -12,23 +13,27 @@ import android.widget.TextView;
 
 import com.example.vkclient2.Data.Friend;
 import com.example.vkclient2.Data.Friends.Items;
+import com.example.vkclient2.MainActivity;
 import com.example.vkclient2.R;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class AdapterFriendList extends BaseAdapter {
+public class AdapterFriendList extends BaseAdapter  {
     private List<Friend> friendList = new ArrayList<>();
+    public List<Friend> getFriendList() {return friendList;}
     private Context context;
+    private static final String TAG = "AdapterFriendList";
 
     public AdapterFriendList(Context context) {
         this.context = context;
-        friendList.add(0, new Friend("Заголовок"));
     }
     public void setFriendList(List<Items>itemsList){
         for (int i = 0; i < itemsList.size(); i++) {
-            friendList.add(new Friend(convertToFriendName(itemsList.get(i))));
-        }
+            friendList.add(new Friend(convertToFriendName(itemsList.get(i)),
+                    itemsList.get(i).getId()));
+        } friendList.add(0,new Friend("Заголовок",1));
+        notifyDataSetChanged();
     }
 
     private String convertToFriendName(Items items) {
@@ -68,12 +73,16 @@ public class AdapterFriendList extends BaseAdapter {
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
         if (getItemViewType(position) == 0) {
+            String header = "Друзья";
             convertView = LayoutInflater.from(context).inflate(R.layout.list_header, parent, false);
             convertView.isEnabled();
+            TextView text = convertView.findViewById(R.id.list_header);
+            text.setText(header);
         } else {
-            convertView = LayoutInflater.from(context).inflate(R.layout.listview_item, parent, false);
+            convertView = LayoutInflater.from(context).inflate(R.
+                    layout.listview_item, parent, false);
             TextView text = convertView.findViewById(R.id.textItem);
-            text.setText(friendList.get(position).textView);
+            text.setText(friendList.get(position).getFullName());
         }
         return convertView;
     }

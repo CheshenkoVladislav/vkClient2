@@ -13,13 +13,16 @@ import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.MenuItem;
+import android.widget.AdapterView;
 import android.widget.ListView;
 import android.widget.TextView;
 
 import com.example.vkclient2.Adapters.AdapterFriendList;
 import com.example.vkclient2.Data.Friend;
 import com.example.vkclient2.Data.Friends.Root;
+import com.example.vkclient2.Data.PhotoListClass;
 import com.example.vkclient2.Fragment.FotoGridFragment;
+import com.example.vkclient2.Fragment.VideoFragment;
 import com.example.vkclient2.SupportClasses.App;
 import com.vk.sdk.VKAccessToken;
 import com.vk.sdk.VKSdk;
@@ -43,6 +46,7 @@ public class MainActivity extends AppCompatActivity {
     private ListView friendList;
     public static int currentFragmentNumber;
     private AdapterFriendList adapterFriendList;
+    private int currentType;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -84,7 +88,8 @@ public class MainActivity extends AppCompatActivity {
         super.onResume();
         if (!VKSdk.isLoggedIn()){
             loggIn();}
-            else initStartFragment();
+            else
+                initStartFragment();
     }
     private void loggIn() {
         Intent intent = new Intent(this, SignInActivity.class);
@@ -94,18 +99,53 @@ public class MainActivity extends AppCompatActivity {
     private void initStartFragment() {
         //initFriendList
         adapterFriendList = new AdapterFriendList(this);
-        initFriends();
+        if (adapterFriendList.getFriendList().size() == 0)
+            initFriends();
+        /**
+         * settings friend list, and set Click Handler
+         */
         friendList.setAdapter(adapterFriendList);
-        //Transaction on start Fragment
+        friendList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                Log.d(TAG, "onItemClick: ");
+                switch (currentType){
+                    case 0:
+                        Log.d(TAG, "onItemClick: ");
+                        PhotoListClass.clearPhotoList();
+                        FotoGridFragment fotoFragment = new FotoGridFragment();
+                        fotoFragment.setUserId(adapterFriendList.getFriendList().get(position)
+                    .getUserId());
+                        fotoFragment.setUserName(adapterFriendList.getFriendList().get(position)
+                            .getFullName());
+                        getSupportFragmentManager().beginTransaction()
+                            .replace(R.id.fragmentContainer,fotoFragment)
+                            .commit();
+                    case 1: VideoFragment videoFragment = new VideoFragment();
+                        getSupportFragmentManager().beginTransaction()
+                            .replace(R.id.fragmentContainer,videoFragment)
+                            .commit();
+                    case 2: FotoGridFragment fotoFragment2 = new FotoGridFragment();
+                        fotoFragment2.setUserId(adapterFriendList.getFriendList().get(position)
+                                .getUserId());
+                        getSupportFragmentManager().beginTransaction()
+                            .replace(R.id.fragmentContainer,fotoFragment2)
+                            .commit();
+                }
+            }
+        });
+        /**
+         * Start First Fragment
+         */
         FotoGridFragment startFragment = new FotoGridFragment();
+        currentType = 0;
         startFragment.setUserId(Integer.parseInt(VKAccessToken.currentToken().userId));
-//        startFragment.setUserName();
+        String userName = "Ваша страница";
+        startFragment.setUserName(userName);
         getSupportFragmentManager().beginTransaction()
                 .add(R.id.fragmentContainer,startFragment)
                 .commit();
     }
-
-
     /**
      * Init local friendList
      */
@@ -137,6 +177,7 @@ public class MainActivity extends AppCompatActivity {
                 switch (item.getItemId()){
                     case R.id.nav_photo :
                         Log.d(TAG, "onMenuItemClick: 1");
+                        currentType = 0;
                         FotoGridFragment newFragmentFoto = new FotoGridFragment();
                         getSupportFragmentManager().beginTransaction()
                             .replace(R.id.fragmentContainer,newFragmentFoto)
@@ -144,6 +185,7 @@ public class MainActivity extends AppCompatActivity {
                         return true;
                     case R.id.nav_video :
                         Log.d(TAG, "onMenuItemClick: 2");
+                        currentType = 1;
                         FotoGridFragment newFragmentVideo = new FotoGridFragment();
                         getSupportFragmentManager().beginTransaction()
                             .replace(R.id.fragmentContainer,newFragmentVideo)
@@ -151,6 +193,7 @@ public class MainActivity extends AppCompatActivity {
                         return true;
                     case R.id.nav_news_feed :
                         Log.d(TAG, "onMenuItemClick: 3");
+                        currentType = 2;
                         FotoGridFragment newFragmentNews = new FotoGridFragment();
                         getSupportFragmentManager().beginTransaction()
                             .replace(R.id.fragmentContainer,newFragmentNews)
