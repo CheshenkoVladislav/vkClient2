@@ -4,7 +4,6 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
-import android.support.v4.app.Fragment;
 import android.support.v7.widget.PopupMenu;
 import android.util.Log;
 import android.view.View;
@@ -19,11 +18,19 @@ import android.widget.TextView;
 
 import com.example.vkclient2.Adapters.AdapterFriendList;
 import com.example.vkclient2.Data.Friend;
+import com.example.vkclient2.Data.Friends.Root;
 import com.example.vkclient2.Fragment.FotoGridFragment;
+import com.example.vkclient2.SupportClasses.App;
+import com.vk.sdk.VKAccessToken;
 import com.vk.sdk.VKSdk;
+import com.vk.sdk.api.VKApi;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 /**
  * !!!TODO: SORRY FOR MY ENGLISH!!!
@@ -31,22 +38,23 @@ import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
     private static final String TAG = "MainActivity";
-    public static TextView textView;
+    public TextView categoryTextView;
+    public TextView friendNameTextView;
     private ListView friendList;
-
     public static int currentFragmentNumber;
-
-    private static Fragment currentFragment;
-    public static Fragment getCurrentFragment() {return currentFragment;}
+    private AdapterFriendList adapterFriendList;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-        textView = findViewById(R.id.categoryTextView);
-        friendList = findViewById(R.id.friend_list);
+        categoryTextView = findViewById(R.id.categoryTextView);
+        friendNameTextView = findViewById(R.id.friendNameTextView);
 
+        friendList = findViewById(R.id.friend_list);
+        toolbar = findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
         //FAB Handler
         FloatingActionButton fab = findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
@@ -62,7 +70,7 @@ public class MainActivity extends AppCompatActivity {
                 this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
         drawer.addDrawerListener(toggle);
         toggle.syncState();
-        textView.setOnClickListener(new View.OnClickListener() {
+        categoryTextView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Log.d(TAG, "onClick CATEGORY");
@@ -84,13 +92,14 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void initStartFragment() {
-        //init friendList
-        AdapterFriendList adapterFriendList = new AdapterFriendList(this,initFriends());
+        //initFriendList
+        adapterFriendList = new AdapterFriendList(this);
+        initFriends();
         friendList.setAdapter(adapterFriendList);
-
         //Transaction on start Fragment
         FotoGridFragment startFragment = new FotoGridFragment();
-        currentFragment = startFragment;
+        startFragment.setUserId(Integer.parseInt(VKAccessToken.currentToken().userId));
+//        startFragment.setUserName();
         getSupportFragmentManager().beginTransaction()
                 .add(R.id.fragmentContainer,startFragment)
                 .commit();
@@ -101,10 +110,21 @@ public class MainActivity extends AppCompatActivity {
      * Init local friendList
      */
     private List<Friend> initFriends() {
+        String FIELDS = "first_name,last_name";
+        String ORDER = "name";
+        App.getApi().getFriendList(FIELDS,ORDER,VKAccessToken.currentToken().accessToken,
+                BuildConfig.VERSION).enqueue(new Callback<Root>() {
+            @Override
+            public void onResponse(Call<Root> call, Response<Root> response) {
+                adapterFriendList.setFriendList(response.body().getResponse().getItemsList());
+            }
+
+            @Override
+            public void onFailure(Call<Root> call, Throwable t) {
+
+            }
+        });
         List<Friend>friendList = new ArrayList<>();
-        friendList.add(new Friend("Vasya"));
-        friendList.add(new Friend("Petya"));
-        friendList.add(new Friend("Alyosha"));
         return friendList;
     }
 
@@ -118,7 +138,6 @@ public class MainActivity extends AppCompatActivity {
                     case R.id.nav_photo :
                         Log.d(TAG, "onMenuItemClick: 1");
                         FotoGridFragment newFragmentFoto = new FotoGridFragment();
-                        currentFragment = newFragmentFoto;
                         getSupportFragmentManager().beginTransaction()
                             .replace(R.id.fragmentContainer,newFragmentFoto)
                             .commit();
@@ -126,7 +145,6 @@ public class MainActivity extends AppCompatActivity {
                     case R.id.nav_video :
                         Log.d(TAG, "onMenuItemClick: 2");
                         FotoGridFragment newFragmentVideo = new FotoGridFragment();
-                        currentFragment = newFragmentVideo;
                         getSupportFragmentManager().beginTransaction()
                             .replace(R.id.fragmentContainer,newFragmentVideo)
                             .commit();
@@ -134,7 +152,6 @@ public class MainActivity extends AppCompatActivity {
                     case R.id.nav_news_feed :
                         Log.d(TAG, "onMenuItemClick: 3");
                         FotoGridFragment newFragmentNews = new FotoGridFragment();
-                        currentFragment = newFragmentNews;
                         getSupportFragmentManager().beginTransaction()
                             .replace(R.id.fragmentContainer,newFragmentNews)
                             .commit();

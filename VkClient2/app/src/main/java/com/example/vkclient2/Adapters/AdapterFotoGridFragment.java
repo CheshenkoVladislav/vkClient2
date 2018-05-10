@@ -3,9 +3,8 @@ package com.example.vkclient2.Adapters;
 import android.annotation.SuppressLint;
 import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentTransaction;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.RecyclerView;
-import android.transition.TransitionSet;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -15,22 +14,21 @@ import android.widget.ImageView;
 import com.example.vkclient2.Data.PhotoClass;
 import com.example.vkclient2.Data.PhotoListClass;
 import com.example.vkclient2.Data.Photos.Items;
-import com.example.vkclient2.Fragment.FotoGridFragment;
 import com.example.vkclient2.MainActivity;
 import com.example.vkclient2.R;
-import com.example.vkclient2.SupportInterfaces.OnClickHolder;
+import com.example.vkclient2.SupportClasses.CropSquareTransformation;
+import com.example.vkclient2.SupportInterfaces.SupportInterface;
 import com.squareup.picasso.Picasso;
 
-import java.util.ArrayList;
 import java.util.List;
 
 public class AdapterFotoGridFragment extends RecyclerView.Adapter<AdapterFotoGridFragment.FotoHolder> {
     private static final String TAG = "AdapterFotoGridFragment";
-    private OnClickHolder clickHandler;
+    private SupportInterface clickHandler;
     private Fragment fragment;
-    public void setClickHandler(OnClickHolder clickHandler) {this.clickHandler = clickHandler;}
+    public void setClickHandler(SupportInterface clickHandler) {this.clickHandler = clickHandler;}
 
-    public AdapterFotoGridFragment(List<Integer> resInts,Fragment fragment){
+    public AdapterFotoGridFragment(Fragment fragment){
         this.fragment = fragment;
     }
 
@@ -44,6 +42,8 @@ public class AdapterFotoGridFragment extends RecyclerView.Adapter<AdapterFotoGri
     @Override
     public void onBindViewHolder(@NonNull FotoHolder holder, @SuppressLint("RecyclerView") int position) {
         holder.bind(position);
+        if (position == PhotoListClass.getPhotoList().size()-1)
+            clickHandler.loadMorePhotos();
     }
 
     @Override
@@ -83,6 +83,7 @@ public class AdapterFotoGridFragment extends RecyclerView.Adapter<AdapterFotoGri
             this.position = position;
             Picasso.get()
                     .load(PhotoListClass.getPhotoList().get(position).getSmallPhoto())
+                    .transform(new CropSquareTransformation())
                     .into(cardImage);
             cardImage.setTransitionName(String.valueOf(PhotoListClass.getPhotoList()
                     .get(position).getSmallPhoto()));

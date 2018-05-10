@@ -8,7 +8,5 @@ public class PhotoListClass {
     public static List<PhotoClass> getPhotoList() {
         return photoList;
     }
-    public static void setPhotoList(List<PhotoClass> photoList) {
-        PhotoListClass.photoList = photoList;
-    }
+    public static void clearPhotoList(){PhotoListClass.photoList = new ArrayList<>();}
 }

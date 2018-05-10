@@ -11,19 +11,29 @@ import android.widget.BaseAdapter;
 import android.widget.TextView;
 
 import com.example.vkclient2.Data.Friend;
+import com.example.vkclient2.Data.Friends.Items;
 import com.example.vkclient2.R;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class AdapterFriendList extends BaseAdapter {
-    List<Friend> friendList;
-    Context context;
+    private List<Friend> friendList = new ArrayList<>();
+    private Context context;
 
-    public AdapterFriendList(Context context, List<Friend> friendList) {
+    public AdapterFriendList(Context context) {
         this.context = context;
-        this.friendList = friendList;
         friendList.add(0, new Friend("Заголовок"));
+    }
+    public void setFriendList(List<Items>itemsList){
+        for (int i = 0; i < itemsList.size(); i++) {
+            friendList.add(new Friend(convertToFriendName(itemsList.get(i))));
+        }
+    }
+
+    private String convertToFriendName(Items items) {
+        return items.getFirst_name() + " " +
+                items.getLast_name();
     }
 
     @Override
@@ -63,7 +73,7 @@ public class AdapterFriendList extends BaseAdapter {
         } else {
             convertView = LayoutInflater.from(context).inflate(R.layout.listview_item, parent, false);
             TextView text = convertView.findViewById(R.id.textItem);
-            text.setText((CharSequence) friendList.get(position).textView);
+            text.setText(friendList.get(position).textView);
         }
         return convertView;
     }

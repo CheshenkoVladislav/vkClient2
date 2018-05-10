@@ -28,7 +28,6 @@ public class BigFotoFragment extends Fragment {
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        Log.d(TAG, "onCreateView: ");
         View view = inflater.inflate(R.layout.fragment_big_foto,container,false);
         ImageView imageView = view.findViewById(R.id.bigPhotoContainer);
         imageView.setTransitionName(String.valueOf(transitionName));
@@ -37,7 +36,6 @@ public class BigFotoFragment extends Fragment {
                 .into(imageView, new Callback() {
                     @Override
                     public void onSuccess() {
-                        Log.d(TAG, "onSuccess: ");
                         getParentFragment().startPostponedEnterTransition();
                     }
 
@@ -46,7 +44,6 @@ public class BigFotoFragment extends Fragment {
                         getParentFragment().startPostponedEnterTransition();
                     }
                 });
-//        Log.d(TAG, "TRANSITION NAME: " + imageView.getTransitionName());
         return view;
     }
 

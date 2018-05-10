@@ -5,6 +5,7 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.SharedElementCallback;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.RecyclerView;
 import android.widget.ImageView;
 import android.transition.TransitionInflater;
@@ -14,17 +15,15 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.example.vkclient2.Adapters.AdapterFotoGridFragment;
-import com.example.vkclient2.App;
+import com.example.vkclient2.SupportClasses.App;
 import com.example.vkclient2.BuildConfig;
-import com.example.vkclient2.Data.Images;
 import com.example.vkclient2.Data.PhotoListClass;
 import com.example.vkclient2.Data.Photos.Root;
 import com.example.vkclient2.MainActivity;
 import com.example.vkclient2.R;
-import com.example.vkclient2.SupportInterfaces.OnClickHolder;
+import com.example.vkclient2.SupportInterfaces.SupportInterface;
 import com.vk.sdk.VKAccessToken;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -35,28 +34,48 @@ import retrofit2.Response;
 public class FotoGridFragment extends Fragment {
     RecyclerView recyclerView;
     AdapterFotoGridFragment adapter;
+    SwipeRefreshLayout refresh;
+    //User info
+    private int userId;
+    private String userName;
+    public void setUserId(int userId) {this.userId = userId;}
+    public void setUserName(String userName) {this.userName = userName;}
+
     private static final String TAG = "FotoGridFragment";
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         String categoryName = "Photo";
-        MainActivity.textView.setText(categoryName);
-        Log.d(TAG, "onCreate: ");
+        ((MainActivity)getActivity()).categoryTextView.setText(categoryName);
+        ((MainActivity)getActivity()).friendNameTextView.setText(userName);
     }
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        recyclerView = (RecyclerView) inflater.inflate(R.layout.fragment_foto_grid,container,false);
-        requestData();
-        adapter = new AdapterFotoGridFragment(Images.resInts,this);
-        adapter.setClickHandler(new ConnectToSlider());
-        recyclerView.setAdapter(adapter);
-        prepareExitTransition();
+        View view = inflater.inflate(R.layout.fragment_foto_grid,container,false);
         /**
          * Postpone transition needed for wait for create new Fragment
          */
+        return view;
+    }
+
+    @Override
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+        recyclerView = view.findViewById(R.id.recycler);
+        requestData();
+        adapter = new AdapterFotoGridFragment(this);
+        adapter.setClickHandler(new ConnectToSlider());
+        recyclerView.setAdapter(adapter);
+        prepareExitTransition();
         if (savedInstanceState == null) postponeEnterTransition();
-        return recyclerView;
+        refresh = view.findViewById(R.id.refresh);
+        refresh.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                requestData();
+            }
+        });
     }
 
     private void prepareExitTransition() {
@@ -80,48 +99,37 @@ public class FotoGridFragment extends Fragment {
           }
         });
     }
-
-    /**
-     * Initialisation local data
-     * @ForTest
-     */
-    public List<Integer> initData(){
-        List<Integer>resInts = new ArrayList<>();
-        resInts.add(R.drawable.vk);
-        resInts.add(R.drawable.ic_menu_camera);
-        resInts.add(R.drawable.ic_menu_slideshow);
-        resInts.add(R.drawable.side_nav_bar);
-        resInts.add(R.drawable.ic_menu_send);
-
-        return resInts;
-    }
     /**
      * Download data from server
      */
     public void requestData(){
-        if (PhotoListClass.getPhotoList().size() == 0) {
-            App.getApi().getAllPhotos(Integer.parseInt(VKAccessToken.currentToken().userId), 1, 0, VKAccessToken.currentToken().accessToken, BuildConfig.VERSION)
+        if (PhotoListClass.getPhotoList().size() != 0) {
+            PhotoListClass.clearPhotoList();
+        }
+            App.getApi().getAllPhotos(Integer.parseInt(VKAccessToken.currentToken().userId), 1, 0,
+                    VKAccessToken.currentToken().accessToken, BuildConfig.VERSION)
                     .enqueue(new Callback<Root>() {
                         @Override
                         public void onResponse(Call<Root> call, Response<Root> response) {
                             adapter.setPhotos(response.body().getResponse().getItems());
+                            refresh.setRefreshing(false);
 
                         }
 
                         @Override
                         public void onFailure(Call<Root> call, Throwable t) {
-
+                            refresh.setRefreshing(false);
                         }
                     });
         }
-    }
 
     /**
-    *Realisation click handler. This include this fragment with exclude on click view.*
+    *@openSlider is realisation click handler. This include this fragment with exclude on click view.*
      * Also this handler include setting transitionSet on next Fragment (Slider Fragment)
      * Click on View - begin transaction to next fragment (Slider Fragment)
+     *@loadMorePhotos is realisation loading new data(photos). This method perform when loaded last ViewHolder;
      */
-    class ConnectToSlider implements OnClickHolder{
+    class ConnectToSlider implements SupportInterface {
         @Override
         public void openSlider(int position,View v) {
             Log.d(TAG, "openSlider: GO FRAGMENT");
@@ -138,5 +146,23 @@ public class FotoGridFragment extends Fragment {
                         .replace(R.id.fragmentContainer, slider)
                         .commit();
             }
+
+        @Override
+        public void loadMorePhotos() {
+                App.getApi().getAllPhotos(Integer.parseInt(VKAccessToken.currentToken().userId),1,
+                        PhotoListClass.getPhotoList().size(),
+                        VKAccessToken.currentToken().accessToken,
+                        BuildConfig.VERSION).enqueue(new Callback<Root>() {
+                    @Override
+                    public void onResponse(Call<Root> call, Response<Root> response) {
+                        adapter.setPhotos(response.body().getResponse().getItems());
+                    }
+
+                    @Override
+                    public void onFailure(Call<Root> call, Throwable t) {
+
+                    }
+                });
+            }
+        }
     }
-}

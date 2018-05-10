@@ -1,8 +1,9 @@
-package com.example.vkclient2;
+package com.example.vkclient2.SupportClasses;
 
 import android.app.Application;
 import android.content.Intent;
 
+import com.example.vkclient2.BuildConfig;
 import com.example.vkclient2.SupportInterfaces.VkApi;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;

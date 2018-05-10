@@ -37,7 +37,6 @@ public class SliderFragment extends Fragment {
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        Log.d(TAG, "onCreateView: ");
         pager = (ViewPager) inflater.inflate(R.layout.fragment_slider, container, false);
         AdapterSliderPager adapter = new AdapterSliderPager(this);
         pager.setAdapter(adapter);
