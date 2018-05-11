@@ -3,7 +3,6 @@ package com.example.vkclient2.Adapters;
 import android.annotation.SuppressLint;
 import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
-import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -12,7 +11,7 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 
 import com.example.vkclient2.Data.PhotoClass;
-import com.example.vkclient2.Data.PhotoListClass;
+import com.example.vkclient2.Data.StaticClasses.PhotoListClass;
 import com.example.vkclient2.Data.Photos.Items;
 import com.example.vkclient2.MainActivity;
 import com.example.vkclient2.R;
@@ -92,7 +91,7 @@ public class AdapterFotoGridFragment extends RecyclerView.Adapter<AdapterFotoGri
         @Override
         public void onClick(View v) {
             Log.d(TAG, "onClick: ");
-            MainActivity.currentFragmentNumber = getAdapterPosition();
+            MainActivity.currentPosition = getAdapterPosition();
             clickHandler.openSlider(getAdapterPosition(),v);
         }
     }

@@ -15,9 +15,10 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.example.vkclient2.Adapters.AdapterFotoGridFragment;
+import com.example.vkclient2.Data.StaticClasses.SelectedUser;
 import com.example.vkclient2.SupportClasses.App;
 import com.example.vkclient2.BuildConfig;
-import com.example.vkclient2.Data.PhotoListClass;
+import com.example.vkclient2.Data.StaticClasses.PhotoListClass;
 import com.example.vkclient2.Data.Photos.Root;
 import com.example.vkclient2.MainActivity;
 import com.example.vkclient2.R;
@@ -36,17 +37,11 @@ public class FotoGridFragment extends Fragment {
     AdapterFotoGridFragment adapter;
     SwipeRefreshLayout refresh;
     //User info
-    private int userId;
-    private String userName;
-    public void setUserId(int userId) {this.userId = userId;}
-    public void setUserName(String userName) {this.userName = userName;}
-
     private static final String TAG = "FotoGridFragment";
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        Log.d(TAG, "onCreate: ");
-        Log.d(TAG, "userName: " + userName);
+        Log.d(TAG, "onCreate: " );
     }
     @Nullable
     @Override
@@ -62,9 +57,8 @@ public class FotoGridFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         Log.d(TAG, "!!!START NEW FRAGMENT!!!");
-        String categoryName = "Photo";
-        ((MainActivity)getActivity()).categoryTextView.setText(categoryName);
-        ((MainActivity)getActivity()).friendNameTextView.setText(userName);
+        ((MainActivity)getActivity()).categoryTextView.setText("Фотографии");
+        ((MainActivity)getActivity()).friendNameTextView.setText(SelectedUser.getUserName());
         recyclerView = view.findViewById(R.id.recycler);
         if (PhotoListClass.getPhotoList().size() == 0)
             requestData();
@@ -74,12 +68,28 @@ public class FotoGridFragment extends Fragment {
         prepareExitTransition();
         if (savedInstanceState == null) postponeEnterTransition();
         refresh = view.findViewById(R.id.refresh);
-        refresh.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+        refresh.setOnRefreshListener(() -> {
+            if (PhotoListClass.getPhotoList().size() != 0)
+                PhotoListClass.clearPhotoList();
+            requestData();
+        });
+        recyclerView.addOnLayoutChangeListener(new View.OnLayoutChangeListener() {
             @Override
-            public void onRefresh() {
-                if (PhotoListClass.getPhotoList().size() != 0)
-                    PhotoListClass.clearPhotoList();
-                requestData();
+            public void onLayoutChange(View v, int left,
+                                       int top, int right,
+                                       int bottom, int oldLeft,
+                                       int oldTop, int oldRight,
+                                       int oldBottom) {
+                recyclerView.removeOnLayoutChangeListener(this);
+                final RecyclerView.LayoutManager layoutManager =
+                        recyclerView.getLayoutManager();
+                View viewAtPosition = layoutManager.findViewByPosition(
+                        MainActivity.currentPosition);
+                if (viewAtPosition == null || layoutManager
+                        .isViewPartiallyVisible(viewAtPosition,false,true)){
+                    recyclerView.post(() -> layoutManager.scrollToPosition(MainActivity.currentPosition));
+                }
+
             }
         });
     }
@@ -94,7 +104,7 @@ public class FotoGridFragment extends Fragment {
           public void onMapSharedElements(List<String> names, Map<String, View> sharedElements) {
             // Locate the ViewHolder for the clicked position.
             RecyclerView.ViewHolder selectedViewHolder = recyclerView
-                .findViewHolderForAdapterPosition(MainActivity.currentFragmentNumber);
+                .findViewHolderForAdapterPosition(MainActivity.currentPosition);
             if (selectedViewHolder == null || selectedViewHolder.itemView == null) {
               return;
             }
@@ -109,13 +119,15 @@ public class FotoGridFragment extends Fragment {
      * Download data from server
      */
     public void requestData(){
-            App.getApi().getAllPhotos(userId, 1, 0,
+            App.getApi().getAllPhotos(SelectedUser.getUserId(), 1, 0,
                     VKAccessToken.currentToken().accessToken, BuildConfig.VERSION)
                     .enqueue(new Callback<Root>() {
                         @Override
                         public void onResponse(Call<Root> call, Response<Root> response) {
-                            adapter.setPhotos(response.body().getResponse().getItems());
-                            refresh.setRefreshing(false);
+                            if (response.body().getResponse() != null){
+                                adapter.setPhotos(response.body().getResponse().getItems());
+                                refresh.setRefreshing(false);
+                            }else requestData();
 
                         }
 
@@ -150,7 +162,7 @@ public class FotoGridFragment extends Fragment {
 
         @Override
         public void loadMorePhotos() {
-                App.getApi().getAllPhotos(userId,1,
+                App.getApi().getAllPhotos(SelectedUser.getUserId(),1,
                         PhotoListClass.getPhotoList().size(),
                         VKAccessToken.currentToken().accessToken,
                         BuildConfig.VERSION).enqueue(new Callback<Root>() {

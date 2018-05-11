@@ -12,21 +12,19 @@ import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
-import android.view.MenuItem;
-import android.widget.AdapterView;
 import android.widget.ListView;
 import android.widget.TextView;
 
 import com.example.vkclient2.Adapters.AdapterFriendList;
 import com.example.vkclient2.Data.Friend;
 import com.example.vkclient2.Data.Friends.Root;
-import com.example.vkclient2.Data.PhotoListClass;
+import com.example.vkclient2.Data.StaticClasses.PhotoListClass;
+import com.example.vkclient2.Data.StaticClasses.SelectedUser;
 import com.example.vkclient2.Fragment.FotoGridFragment;
 import com.example.vkclient2.Fragment.VideoFragment;
 import com.example.vkclient2.SupportClasses.App;
 import com.vk.sdk.VKAccessToken;
 import com.vk.sdk.VKSdk;
-import com.vk.sdk.api.VKApi;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -44,7 +42,7 @@ public class MainActivity extends AppCompatActivity {
     public TextView categoryTextView;
     public TextView friendNameTextView;
     private ListView friendList;
-    public static int currentFragmentNumber;
+    public static int currentPosition;
     private AdapterFriendList adapterFriendList;
     private int currentType;
     @Override
@@ -61,28 +59,27 @@ public class MainActivity extends AppCompatActivity {
         setSupportActionBar(toolbar);
         //FAB Handler
         FloatingActionButton fab = findViewById(R.id.fab);
-        fab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
-            }
-        });
+        fab.setOnClickListener(view -> Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
+                .setAction("Action", null).show());
 
+        //Init drawer layout
         DrawerLayout drawer = findViewById(R.id.drawer_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
                 this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
         drawer.addDrawerListener(toggle);
         toggle.syncState();
-        categoryTextView.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Log.d(TAG, "onClick CATEGORY");
-                showPopupMenu(v);
-            }
+
+        //Click listener for show popup menu
+        categoryTextView.setOnClickListener(v -> {
+            Log.d(TAG, "onClick CATEGORY");
+            showPopupMenu(v);
         });
     }
 
+    /**
+     * @SignIn
+     * in onResume method, we does test about necessity auth or no
+     */
     @Override
     protected void onResume() {
         super.onResume();
@@ -105,33 +102,30 @@ public class MainActivity extends AppCompatActivity {
          * settings friend list, and set Click Handler
          */
         friendList.setAdapter(adapterFriendList);
-        friendList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                Log.d(TAG, "onItemClick: ");
-                switch (currentType){
-                    case 0:
-                        Log.d(TAG, "onItemClick: ");
-                        PhotoListClass.clearPhotoList();
-                        FotoGridFragment fotoFragment = new FotoGridFragment();
-                        fotoFragment.setUserId(adapterFriendList.getFriendList().get(position)
-                    .getUserId());
-                        fotoFragment.setUserName(adapterFriendList.getFriendList().get(position)
+        friendList.setOnItemClickListener((parent, view, position, id) -> {
+            Log.d(TAG, "currentType: " + currentType);
+                if(currentType == 0) {
+                    Log.d(TAG, "onItemClick: " + adapterFriendList.getFriendList().get(position)
+                            .getUserId());
+                    PhotoListClass.clearPhotoList();
+                    FotoGridFragment fotoFragment = new FotoGridFragment();
+                    SelectedUser.setUserId(adapterFriendList.getFriendList().get(position)
+                            .getUserId());
+                    SelectedUser.setUserName(adapterFriendList.getFriendList().get(position)
                             .getFullName());
-                        getSupportFragmentManager().beginTransaction()
-                            .replace(R.id.fragmentContainer,fotoFragment)
+                    getSupportFragmentManager().beginTransaction()
+                            .replace(R.id.fragmentContainer, fotoFragment)
                             .commit();
-                    case 1: VideoFragment videoFragment = new VideoFragment();
-                        getSupportFragmentManager().beginTransaction()
-                            .replace(R.id.fragmentContainer,videoFragment)
+                }else if (currentType == 1) {
+                    VideoFragment videoFragment = new VideoFragment();
+                    getSupportFragmentManager().beginTransaction()
+                            .replace(R.id.fragmentContainer, videoFragment)
                             .commit();
-                    case 2: FotoGridFragment fotoFragment2 = new FotoGridFragment();
-                        fotoFragment2.setUserId(adapterFriendList.getFriendList().get(position)
-                                .getUserId());
-                        getSupportFragmentManager().beginTransaction()
-                            .replace(R.id.fragmentContainer,fotoFragment2)
+                }else if (currentType == 2){
+                    VideoFragment videoFragment2 = new VideoFragment();
+                    getSupportFragmentManager().beginTransaction()
+                            .replace(R.id.fragmentContainer,videoFragment2)
                             .commit();
-                }
             }
         });
         /**
@@ -139,9 +133,8 @@ public class MainActivity extends AppCompatActivity {
          */
         FotoGridFragment startFragment = new FotoGridFragment();
         currentType = 0;
-        startFragment.setUserId(Integer.parseInt(VKAccessToken.currentToken().userId));
-        String userName = "Ваша страница";
-        startFragment.setUserName(userName);
+        SelectedUser.setUserId(Integer.parseInt(VKAccessToken.currentToken().userId));
+        SelectedUser.setUserName("Ваша страница");
         getSupportFragmentManager().beginTransaction()
                 .add(R.id.fragmentContainer,startFragment)
                 .commit();
@@ -168,40 +161,38 @@ public class MainActivity extends AppCompatActivity {
         return friendList;
     }
 
+    /**
+     * @PopUpMenu
+     * this popup menu shower and menuItem Click handler
+     */
     private void showPopupMenu(View view) {
         PopupMenu popupMenu = new PopupMenu(this,view);
         popupMenu.inflate(R.menu.popup_menu);
-        popupMenu.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
-            @Override
-            public boolean onMenuItemClick(MenuItem item) {
-                switch (item.getItemId()){
-                    case R.id.nav_photo :
-                        Log.d(TAG, "onMenuItemClick: 1");
-                        currentType = 0;
-                        FotoGridFragment newFragmentFoto = new FotoGridFragment();
-                        getSupportFragmentManager().beginTransaction()
-                            .replace(R.id.fragmentContainer,newFragmentFoto)
+        popupMenu.setOnMenuItemClickListener(item -> {
+            switch (item.getItemId()){
+                case R.id.nav_photo :
+                    currentType = 0;
+                    FotoGridFragment newFragmentFoto = new FotoGridFragment();
+                    getSupportFragmentManager().beginTransaction()
+                        .replace(R.id.fragmentContainer,newFragmentFoto)
+                        .commit();
+                    return true;
+                case R.id.nav_video :
+                    currentType = 1;
+                    VideoFragment videoFragment2 = new VideoFragment();
+                    getSupportFragmentManager().beginTransaction()
+                            .replace(R.id.fragmentContainer,videoFragment2)
                             .commit();
-                        return true;
-                    case R.id.nav_video :
-                        Log.d(TAG, "onMenuItemClick: 2");
-                        currentType = 1;
-                        FotoGridFragment newFragmentVideo = new FotoGridFragment();
-                        getSupportFragmentManager().beginTransaction()
-                            .replace(R.id.fragmentContainer,newFragmentVideo)
+                    return true;
+                case R.id.nav_news_feed :
+                    currentType = 2;
+                    VideoFragment videoFragment = new VideoFragment();
+                    getSupportFragmentManager().beginTransaction()
+                            .replace(R.id.fragmentContainer,videoFragment)
                             .commit();
-                        return true;
-                    case R.id.nav_news_feed :
-                        Log.d(TAG, "onMenuItemClick: 3");
-                        currentType = 2;
-                        FotoGridFragment newFragmentNews = new FotoGridFragment();
-                        getSupportFragmentManager().beginTransaction()
-                            .replace(R.id.fragmentContainer,newFragmentNews)
-                            .commit();
-                        return true;
-                }
-                return false;
+                    return true;
             }
+            return false;
         });
         popupMenu.show();
     }

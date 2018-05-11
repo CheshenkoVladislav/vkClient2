@@ -1,17 +1,10 @@
 package com.example.vkclient2.Adapters;
 
-import android.media.Image;
 import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentManager;
-import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.app.FragmentStatePagerAdapter;
-import android.support.v4.app.SharedElementCallback;
-import android.util.Log;
 
-import com.example.vkclient2.Data.Images;
-import com.example.vkclient2.Data.PhotoListClass;
+import com.example.vkclient2.Data.StaticClasses.PhotoListClass;
 import com.example.vkclient2.Fragment.BigFotoFragment;
-import java.util.List;
 
 public class AdapterSliderPager extends FragmentStatePagerAdapter {
     private static final String TAG = "AdapterSliderPager";

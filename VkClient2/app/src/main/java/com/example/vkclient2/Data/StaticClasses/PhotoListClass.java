@@ -1,4 +1,6 @@
-package com.example.vkclient2.Data;
+package com.example.vkclient2.Data.StaticClasses;
+
+import com.example.vkclient2.Data.PhotoClass;
 
 import java.util.ArrayList;
 import java.util.List;

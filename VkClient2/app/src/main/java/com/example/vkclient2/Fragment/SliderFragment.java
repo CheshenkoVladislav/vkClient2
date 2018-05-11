@@ -1,29 +1,18 @@
 package com.example.vkclient2.Fragment;
 
-import android.animation.LayoutTransition;
-import android.content.Context;
-import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentManager;
-import android.support.v4.app.FragmentPagerAdapter;
-import android.support.v4.app.FragmentStatePagerAdapter;
 import android.support.v4.app.SharedElementCallback;
 import android.support.v4.view.ViewPager;
-import android.transition.ChangeBounds;
-import android.transition.Fade;
 import android.transition.Transition;
 import android.transition.TransitionInflater;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
 import com.example.vkclient2.Adapters.AdapterSliderPager;
-import com.example.vkclient2.CustomTransition;
-import com.example.vkclient2.Data.Images;
 import com.example.vkclient2.MainActivity;
 import com.example.vkclient2.R;
 
@@ -40,10 +29,30 @@ public class SliderFragment extends Fragment {
         pager = (ViewPager) inflater.inflate(R.layout.fragment_slider, container, false);
         AdapterSliderPager adapter = new AdapterSliderPager(this);
         pager.setAdapter(adapter);
-        pager.setCurrentItem(MainActivity.currentFragmentNumber);
+        pager.setCurrentItem(MainActivity.currentPosition);
         prepareTransition();
         if (savedInstanceState == null) postponeEnterTransition();
         return pager;
+    }
+
+    @Override
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+        pager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
+            @Override
+            public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
+
+            }
+
+            @Override
+            public void onPageSelected(int position) {
+                MainActivity.currentPosition = position;
+            }
+
+            @Override
+            public void onPageScrollStateChanged(int state) {
+            }
+        });
     }
 
     void prepareTransition() {
@@ -59,7 +68,7 @@ public class SliderFragment extends Fragment {
                         // At this stage, the method will simply return the fragment at the position and will
                         // not create a new one.
                         Fragment currentFragment = (Fragment) pager.getAdapter()
-                                .instantiateItem(pager, MainActivity.currentFragmentNumber);
+                                .instantiateItem(pager, MainActivity.currentPosition);
                         View view = currentFragment.getView();
                         if (view == null) {
                             return;
