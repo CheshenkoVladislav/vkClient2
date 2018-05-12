@@ -69,8 +69,10 @@ public class FotoGridFragment extends Fragment {
         if (savedInstanceState == null) postponeEnterTransition();
         refresh = view.findViewById(R.id.refresh);
         refresh.setOnRefreshListener(() -> {
-            if (PhotoListClass.getPhotoList().size() != 0)
+            if (PhotoListClass.getPhotoList().size() != 0){
                 PhotoListClass.clearPhotoList();
+                adapter.setLoadFlag(false);
+            }
             requestData();
         });
         recyclerView.addOnLayoutChangeListener(new View.OnLayoutChangeListener() {
@@ -128,7 +130,6 @@ public class FotoGridFragment extends Fragment {
                                 adapter.setPhotos(response.body().getResponse().getItems());
                                 refresh.setRefreshing(false);
                             }else requestData();
-
                         }
 
                         @Override
@@ -174,7 +175,7 @@ public class FotoGridFragment extends Fragment {
 
                     @Override
                     public void onFailure(Call<Root> call, Throwable t) {
-
+                        adapter.setLoadFlag(true);
                     }
                 });
             }

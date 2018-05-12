@@ -15,6 +15,7 @@ import com.example.vkclient2.Data.Friend;
 import com.example.vkclient2.Data.Friends.Items;
 import com.example.vkclient2.MainActivity;
 import com.example.vkclient2.R;
+import com.vk.sdk.VKAccessToken;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -33,6 +34,8 @@ public class AdapterFriendList extends BaseAdapter  {
             friendList.add(new Friend(convertToFriendName(itemsList.get(i)),
                     itemsList.get(i).getId()));
         } friendList.add(0,new Friend("Заголовок",1));
+        friendList.add(1,new Friend("Ваша страница",
+                Integer.parseInt(VKAccessToken.currentToken().userId)));
         notifyDataSetChanged();
     }
 

@@ -25,6 +25,8 @@ public class AdapterFotoGridFragment extends RecyclerView.Adapter<AdapterFotoGri
     private static final String TAG = "AdapterFotoGridFragment";
     private SupportInterface clickHandler;
     private Fragment fragment;
+    private boolean loadFlag;
+    public void setLoadFlag(boolean loadFlag) {this.loadFlag = loadFlag;}
     public void setClickHandler(SupportInterface clickHandler) {this.clickHandler = clickHandler;}
 
     public AdapterFotoGridFragment(Fragment fragment){
@@ -41,7 +43,7 @@ public class AdapterFotoGridFragment extends RecyclerView.Adapter<AdapterFotoGri
     @Override
     public void onBindViewHolder(@NonNull FotoHolder holder, @SuppressLint("RecyclerView") int position) {
         holder.bind(position);
-        if (position == PhotoListClass.getPhotoList().size()-1)
+        if (position == PhotoListClass.getPhotoList().size()-5 || !loadFlag)
             clickHandler.loadMorePhotos();
     }
 
