@@ -3,6 +3,7 @@ package com.example.vkclient2.Fragment;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.SharedElementCallback;
 import android.support.v4.widget.SwipeRefreshLayout;
@@ -36,12 +37,13 @@ public class FotoGridFragment extends Fragment {
     RecyclerView recyclerView;
     AdapterFotoGridFragment adapter;
     SwipeRefreshLayout refresh;
+    //this  flag say about is necessary loading more photos, or cant load more
+    private boolean loadFlag;
     //User info
     private static final String TAG = "FotoGridFragment";
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        Log.d(TAG, "onCreate: " );
     }
     @Nullable
     @Override
@@ -71,10 +73,19 @@ public class FotoGridFragment extends Fragment {
         refresh.setOnRefreshListener(() -> {
             if (PhotoListClass.getPhotoList().size() != 0){
                 PhotoListClass.clearPhotoList();
-                adapter.setLoadFlag(false);
+                loadFlag = false;
             }
             requestData();
         });
+        //FAB Handler, also hide/show handler location in adapter
+        FloatingActionButton fab = ((MainActivity)getActivity()).getFab();
+        fab.setOnClickListener((v -> {
+            recyclerView.smoothScrollToPosition(1);
+        }));
+        /**
+         * Set current element from ViewPager to RecycleView
+         * This method is necessary for SharedTransition knew about current element, and return animation correct
+         */
         recyclerView.addOnLayoutChangeListener(new View.OnLayoutChangeListener() {
             @Override
             public void onLayoutChange(View v, int left,
@@ -163,21 +174,25 @@ public class FotoGridFragment extends Fragment {
 
         @Override
         public void loadMorePhotos() {
-                App.getApi().getAllPhotos(SelectedUser.getUserId(),1,
+            if (!loadFlag) {
+                App.getApi().getAllPhotos(SelectedUser.getUserId(), 1,
                         PhotoListClass.getPhotoList().size(),
                         VKAccessToken.currentToken().accessToken,
                         BuildConfig.VERSION).enqueue(new Callback<Root>() {
                     @Override
                     public void onResponse(Call<Root> call, Response<Root> response) {
-                        if (response.body().getResponse() != null)
-                            adapter.setPhotos(response.body().getResponse().getItems());
+                        if (response.body().getResponse() == null) {
+                            loadFlag = true;
+                            Log.d(TAG, "!!!STOP LOADING!!!");
+                        } else adapter.setPhotos(response.body().getResponse().getItems());
                     }
 
                     @Override
                     public void onFailure(Call<Root> call, Throwable t) {
-                        adapter.setLoadFlag(true);
+                        Log.d(TAG, "onFailure: ");
                     }
                 });
+            }
             }
         }
     }

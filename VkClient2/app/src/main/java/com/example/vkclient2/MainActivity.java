@@ -45,6 +45,8 @@ public class MainActivity extends AppCompatActivity {
     public static int currentPosition;
     private AdapterFriendList adapterFriendList;
     private int currentType;
+    FloatingActionButton fab;
+    public FloatingActionButton getFab() {return fab;}
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -57,11 +59,8 @@ public class MainActivity extends AppCompatActivity {
         friendList = findViewById(R.id.friend_list);
         toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-        //FAB Handler
-        FloatingActionButton fab = findViewById(R.id.fab);
-        fab.setOnClickListener(view -> Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                .setAction("Action", null).show());
-
+        //FAB init
+        fab = findViewById(R.id.fab);
         //Init drawer layout
         DrawerLayout drawer = findViewById(R.id.drawer_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(

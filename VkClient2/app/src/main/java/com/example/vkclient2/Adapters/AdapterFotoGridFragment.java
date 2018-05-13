@@ -2,6 +2,7 @@ package com.example.vkclient2.Adapters;
 
 import android.annotation.SuppressLint;
 import android.support.annotation.NonNull;
+import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
@@ -25,8 +26,6 @@ public class AdapterFotoGridFragment extends RecyclerView.Adapter<AdapterFotoGri
     private static final String TAG = "AdapterFotoGridFragment";
     private SupportInterface clickHandler;
     private Fragment fragment;
-    private boolean loadFlag;
-    public void setLoadFlag(boolean loadFlag) {this.loadFlag = loadFlag;}
     public void setClickHandler(SupportInterface clickHandler) {this.clickHandler = clickHandler;}
 
     public AdapterFotoGridFragment(Fragment fragment){
@@ -43,8 +42,12 @@ public class AdapterFotoGridFragment extends RecyclerView.Adapter<AdapterFotoGri
     @Override
     public void onBindViewHolder(@NonNull FotoHolder holder, @SuppressLint("RecyclerView") int position) {
         holder.bind(position);
-        if (position == PhotoListClass.getPhotoList().size()-5 || !loadFlag)
+        if (position == PhotoListClass.getPhotoList().size()-1)
             clickHandler.loadMorePhotos();
+        //Hide/Show fab handler
+        FloatingActionButton fab = ((MainActivity)fragment.getActivity()).getFab();
+        if (position > 50) fab.show();
+        else fab.hide();
     }
 
     @Override
@@ -65,8 +68,8 @@ public class AdapterFotoGridFragment extends RecyclerView.Adapter<AdapterFotoGri
                 photo.setBigPhoto(itemList.get(i).getPhoto_807());
             else photo.setBigPhoto(itemList.get(i).getPhoto_604());
             PhotoListClass.getPhotoList().add(photo);
+            notifyItemChanged(i);
         }
-        notifyDataSetChanged();
         Log.d(TAG, "SMALL PHOTOS: " + PhotoListClass.getPhotoList().size());
     }
 
@@ -92,7 +95,6 @@ public class AdapterFotoGridFragment extends RecyclerView.Adapter<AdapterFotoGri
         }
         @Override
         public void onClick(View v) {
-            Log.d(TAG, "onClick: ");
             MainActivity.currentPosition = getAdapterPosition();
             clickHandler.openSlider(getAdapterPosition(),v);
         }
