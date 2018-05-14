@@ -4,6 +4,7 @@ import android.annotation.SuppressLint;
 import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
+import android.support.v7.widget.CardView;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -18,6 +19,7 @@ import com.example.vkclient2.MainActivity;
 import com.example.vkclient2.R;
 import com.example.vkclient2.SupportClasses.CropSquareTransformation;
 import com.example.vkclient2.SupportInterfaces.SupportInterface;
+import com.squareup.picasso.Callback;
 import com.squareup.picasso.Picasso;
 
 import java.util.List;
@@ -85,14 +87,31 @@ public class AdapterFotoGridFragment extends RecyclerView.Adapter<AdapterFotoGri
         }
         void bind(int position){
             this.position = position;
+            cardImage.setTransitionName(String.valueOf(PhotoListClass.getPhotoList()
+                    .get(position).getSmallPhoto()));
             Picasso.get()
                     .load(PhotoListClass.getPhotoList().get(position).getSmallPhoto())
                     .transform(new CropSquareTransformation())
-                    .into(cardImage);
-            cardImage.setTransitionName(String.valueOf(PhotoListClass.getPhotoList()
-                    .get(position).getSmallPhoto()));
+                    .into(cardImage, new Callback() {
+                        @Override
+                        public void onSuccess() {
+                            onLoadCompleted(position);
+                        }
+
+                        @Override
+                        public void onError(Exception e) {
+                            onLoadCompleted(position);
+                        }
+                    });
+        }
+        public void onLoadCompleted(int position) {
+            // Call startPostponedEnterTransition only when the 'selected' image loading is completed.
+            if (MainActivity.currentPosition != position) {
+                return;
+            }
             fragment.startPostponedEnterTransition();
         }
+
         @Override
         public void onClick(View v) {
             MainActivity.currentPosition = getAdapterPosition();

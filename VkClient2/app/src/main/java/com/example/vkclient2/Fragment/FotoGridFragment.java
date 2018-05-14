@@ -34,9 +34,10 @@ import retrofit2.Callback;
 import retrofit2.Response;
 
 public class FotoGridFragment extends Fragment {
-    RecyclerView recyclerView;
-    AdapterFotoGridFragment adapter;
-    SwipeRefreshLayout refresh;
+    private RecyclerView recyclerView;
+    private AdapterFotoGridFragment adapter;
+    private SwipeRefreshLayout refresh;
+    private FloatingActionButton fab;
     //this  flag say about is necessary loading more photos, or cant load more
     private boolean loadFlag;
     //User info
@@ -49,6 +50,8 @@ public class FotoGridFragment extends Fragment {
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_foto_grid,container,false);
+        ((MainActivity)getActivity()).categoryTextView.setText("Фотографии");
+        ((MainActivity)getActivity()).friendNameTextView.setText(SelectedUser.getUserName());
         /**
          * Postpone transition needed for wait for create new Fragment
          */
@@ -59,16 +62,12 @@ public class FotoGridFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         Log.d(TAG, "!!!START NEW FRAGMENT!!!");
-        ((MainActivity)getActivity()).categoryTextView.setText("Фотографии");
-        ((MainActivity)getActivity()).friendNameTextView.setText(SelectedUser.getUserName());
         recyclerView = view.findViewById(R.id.recycler);
         if (PhotoListClass.getPhotoList().size() == 0)
             requestData();
         adapter = new AdapterFotoGridFragment(this);
         adapter.setClickHandler(new ConnectToSlider());
         recyclerView.setAdapter(adapter);
-        prepareExitTransition();
-        if (savedInstanceState == null) postponeEnterTransition();
         refresh = view.findViewById(R.id.refresh);
         refresh.setOnRefreshListener(() -> {
             if (PhotoListClass.getPhotoList().size() != 0){
@@ -77,8 +76,11 @@ public class FotoGridFragment extends Fragment {
             }
             requestData();
         });
+        scrollToPosition();
+        prepareExitTransition();
+        postponeEnterTransition();
         //FAB Handler, also hide/show handler location in adapter
-        FloatingActionButton fab = ((MainActivity)getActivity()).getFab();
+        fab = ((MainActivity)getActivity()).getFab();
         fab.setOnClickListener((v -> {
             recyclerView.smoothScrollToPosition(1);
         }));
@@ -86,6 +88,32 @@ public class FotoGridFragment extends Fragment {
          * Set current element from ViewPager to RecycleView
          * This method is necessary for SharedTransition knew about current element, and return animation correct
          */
+    }
+
+    private void prepareExitTransition() {
+        setExitTransition(TransitionInflater.from(getContext())
+                .inflateTransition(R.transition.exit_transition));
+
+        setExitSharedElementCallback(
+        new SharedElementCallback() {
+          @Override
+          public void onMapSharedElements(List<String> names, Map<String, View> sharedElements) {
+              // Locate the ViewHolder for the clicked position.
+              RecyclerView.ViewHolder selectedViewHolder = recyclerView
+                .findViewHolderForAdapterPosition(MainActivity.currentPosition);
+              if (selectedViewHolder == null || selectedViewHolder.itemView == null) {
+                  Log.d(TAG, "onMapSharedElementsGRID: NULL");
+                return;
+            }
+              Log.d(TAG, "onMapSharedElementsGRID: " + names);
+
+              // Map the first shared element name to the child ImageView.
+            sharedElements
+                .put(names.get(0), selectedViewHolder.itemView.findViewById(R.id.cardImage));
+          }
+        });
+    }
+    private void scrollToPosition(){
         recyclerView.addOnLayoutChangeListener(new View.OnLayoutChangeListener() {
             @Override
             public void onLayoutChange(View v, int left,
@@ -106,28 +134,6 @@ public class FotoGridFragment extends Fragment {
             }
         });
     }
-
-    private void prepareExitTransition() {
-        setExitTransition(TransitionInflater.from(getContext())
-                .inflateTransition(R.transition.exit_transition));
-
-        setExitSharedElementCallback(
-        new SharedElementCallback() {
-          @Override
-          public void onMapSharedElements(List<String> names, Map<String, View> sharedElements) {
-            // Locate the ViewHolder for the clicked position.
-            RecyclerView.ViewHolder selectedViewHolder = recyclerView
-                .findViewHolderForAdapterPosition(MainActivity.currentPosition);
-            if (selectedViewHolder == null || selectedViewHolder.itemView == null) {
-              return;
-            }
-
-            // Map the first shared element name to the child ImageView.
-            sharedElements
-                .put(names.get(0), selectedViewHolder.itemView.findViewById(R.id.cardImage));
-          }
-        });
-    }
     /**
      * Download data from server
      */
@@ -138,6 +144,7 @@ public class FotoGridFragment extends Fragment {
                         @Override
                         public void onResponse(Call<Root> call, Response<Root> response) {
                             if (response.body().getResponse() != null){
+                                PhotoListClass.setPhotoQuantity(response.body().getResponse().getCount());
                                 adapter.setPhotos(response.body().getResponse().getItems());
                                 refresh.setRefreshing(false);
                             }else requestData();
@@ -163,6 +170,7 @@ public class FotoGridFragment extends Fragment {
 //            imageView.setTransitionName(String.valueOf(Images.resInts.get(position)));
             SliderFragment slider = new SliderFragment();
 //            ((TransitionSet) MainActivity.getCurrentFragment().getExitTransition()).excludeTarget(v, true);
+            if (fab.isShown())fab.hide();
             getFragmentManager()
                         .beginTransaction()
                         .setReorderingAllowed(true)

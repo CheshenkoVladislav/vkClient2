@@ -1,18 +1,26 @@
 package com.example.vkclient2.Fragment;
 
+import android.annotation.SuppressLint;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.SharedElementCallback;
 import android.support.v4.view.ViewPager;
+import android.support.v7.widget.RecyclerView;
+import android.transition.Fade;
 import android.transition.Transition;
 import android.transition.TransitionInflater;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
+import android.widget.TextView;
 
 import com.example.vkclient2.Adapters.AdapterSliderPager;
+import com.example.vkclient2.Data.StaticClasses.PhotoListClass;
 import com.example.vkclient2.MainActivity;
 import com.example.vkclient2.R;
 
@@ -26,39 +34,38 @@ public class SliderFragment extends Fragment {
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        pager = (ViewPager) inflater.inflate(R.layout.fragment_slider, container, false);
-        AdapterSliderPager adapter = new AdapterSliderPager(this);
-        pager.setAdapter(adapter);
-        pager.setCurrentItem(MainActivity.currentPosition);
-        prepareTransition();
-        if (savedInstanceState == null) postponeEnterTransition();
-        return pager;
+        return inflater.inflate(R.layout.fragment_slider, container, false);
     }
 
+    @SuppressLint("SetTextI18n")
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        pager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
-            @Override
-            public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
-
-            }
-
+        pager = view.findViewById(R.id.sliderPager);
+        TextView imageCounter = view.findViewById(R.id.imageCounter);
+        LinearLayout footer = view.findViewById(R.id.footer);
+        footer.setVisibility(View.VISIBLE);
+        AdapterSliderPager adapter = new AdapterSliderPager(this);
+        pager.setAdapter(adapter);
+        pager.setCurrentItem(MainActivity.currentPosition);
+        imageCounter.setText(MainActivity.currentPosition + "/" + PhotoListClass.getPhotoQuantity());
+        prepareTransition();
+        if (savedInstanceState == null) postponeEnterTransition();
+        pager.addOnPageChangeListener(new ViewPager.SimpleOnPageChangeListener() {
             @Override
             public void onPageSelected(int position) {
+                Log.d(TAG, "onPageSelected: " + position);
                 MainActivity.currentPosition = position;
+                imageCounter.setText("" + position + "/" + PhotoListClass.getPhotoQuantity());
             }
-
-            @Override
-            public void onPageScrollStateChanged(int state) {
-            }
-        });
+           });
     }
 
     void prepareTransition() {
         Transition transition = TransitionInflater.from(getContext())
                 .inflateTransition(R.transition.shared_transition);
         setSharedElementEnterTransition(transition);
+//        setEnterTransition(transition);
         setEnterSharedElementCallback(
                 new SharedElementCallback() {
                     @Override

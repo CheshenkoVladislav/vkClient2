@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    android:id="@+id/footer"
+    android:visibility="invisible"
+    android:gravity="center"
+    android:orientation="horizontal"
+    android:background="#5000"
+    android:layout_alignParentBottom="true"
+    android:layout_width="match_parent"
+    android:layout_height="48dp"
+    xmlns:android="http://schemas.android.com/apk/res/android">
+    <ImageView
+        android:src="@drawable/ic_comment_24dp"
+        android:layout_weight="1"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
+    <ImageView
+        android:src="@drawable/ic_thumb_up_24dp"
+        android:layout_weight="1"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
+</LinearLayout>
