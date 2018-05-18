@@ -1,11 +1,11 @@
     apply plugin: 'com.android.application'
 
 android {
-    compileSdkVersion 27
+    compileSdkVersion 26
     defaultConfig {
-        applicationId "com.example.vkclient2"
+        applicationId "com.example.vkclient22214"
         minSdkVersion 21
-        targetSdkVersion 27
+        targetSdkVersion 26
         versionCode 1
         versionName "1.0"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
@@ -22,6 +22,7 @@ android {
             buildConfigField "String","VERSION","\"5.74\""
         }
     }
+    buildToolsVersion '27.0.3'
     compileOptions {
         targetCompatibility 1.8
         sourceCompatibility 1.8
@@ -34,11 +35,11 @@ dependencies {
     implementation fileTree(include: ['*.jar'], dir: 'libs')
     implementation 'com.squareup.picasso:picasso:2.71828'
     //noinspection GradleCompatible
-    implementation 'com.android.support:appcompat-v7:27.1.1'
-    implementation 'com.android.support:support-v4:27.1.1'
-    implementation 'com.android.support:design:27.1.1'
+    implementation 'com.android.support:appcompat-v7:26.1.0'
+    implementation 'com.android.support:support-v4:26.1.0'
+    implementation 'com.android.support:design:26.1.0'
     implementation 'com.android.support.constraint:constraint-layout:1.1.0'
-    implementation 'com.android.support:cardview-v7:27.1.1'
+    implementation 'com.android.support:cardview-v7:26.1.0'
 
     implementation 'com.squareup.retrofit2:retrofit:2.4.0'
 

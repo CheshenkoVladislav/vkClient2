@@ -1,8 +1,14 @@
 *.iml
 .gradle
+/.idea/*
+/gradle.properties
+/gradlew
+/gradlew.bat
 /local.properties
-.idea
+
+.navigation
 .DS_Store
 /build
 /captures
 .externalNativeBuild
+app/src/main/res/animator/
